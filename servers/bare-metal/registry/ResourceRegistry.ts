@@ -1,4 +1,4 @@
-import type { FileResourceHandler } from '../handlers/FileResourceHandler.js';
+import type { CapabilityHandler } from '../../../shared/types/index.js';
 
 /**
  * Resource metadata for MCP resource listing
@@ -14,7 +14,7 @@ export interface ResourceMetadata {
  * Provides centralized management of all available resource types
  */
 export class ResourceRegistry {
-  private resources: Map<string, FileResourceHandler> = new Map();
+  private resources: Map<string, CapabilityHandler<unknown, unknown>> = new Map();
   private metadata: Map<string, ResourceMetadata> = new Map();
 
   /**
@@ -23,7 +23,7 @@ export class ResourceRegistry {
    * @param handler - Resource handler implementation
    * @param metadata - Resource metadata for discovery
    */
-  register(uriScheme: string, handler: FileResourceHandler, metadata: ResourceMetadata): void {
+  register(uriScheme: string, handler: CapabilityHandler<unknown, unknown>, metadata: ResourceMetadata): void {
     if (this.resources.has(uriScheme)) {
       throw new Error(`Resource scheme "${uriScheme}" is already registered`);
     }
@@ -37,7 +37,7 @@ export class ResourceRegistry {
    * @param uriScheme - URI scheme
    * @returns Resource handler or undefined if not found
    */
-  get(uriScheme: string): FileResourceHandler | undefined {
+  get(uriScheme: string): CapabilityHandler<unknown, unknown> | undefined {
     return this.resources.get(uriScheme);
   }
 
@@ -46,7 +46,7 @@ export class ResourceRegistry {
    * @param uri - Full resource URI (e.g., "file:///path/to/file.txt")
    * @returns Resource handler or undefined if no handler for scheme
    */
-  getForUri(uri: string): FileResourceHandler | undefined {
+  getForUri(uri: string): CapabilityHandler<unknown, unknown> | undefined {
     const colonIndex = uri.indexOf(':');
     if (colonIndex === -1) {
       return undefined;

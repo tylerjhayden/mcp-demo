@@ -5,6 +5,7 @@
 
 import { ResourceRegistry } from '../../servers/bare-metal/registry/ResourceRegistry.js';
 import { FileResourceHandler } from '../../servers/bare-metal/handlers/FileResourceHandler.js';
+import type { CapabilityHandler, ExecutionContext, Result, ValidationResult } from '../../shared/types/index.js';
 
 describe('ResourceRegistry', () => {
   let registry: ResourceRegistry;
@@ -25,6 +26,33 @@ describe('ResourceRegistry', () => {
 
       registry.register(metadata.uriScheme, handler, metadata);
       expect(registry.size()).toBe(1);
+    });
+
+    it('should accept any CapabilityHandler implementation', (): void => {
+      // Create a custom handler that implements CapabilityHandler
+      class CustomResourceHandler implements CapabilityHandler<{ uri: string }, { data: string }> {
+        validate(_input: unknown): ValidationResult<{ uri: string }> {
+          return { success: true, data: { uri: 'custom://test' } };
+        }
+        async execute(_params: { uri: string }, _context: ExecutionContext): Promise<Result<{ data: string }>> {
+          return { success: true, data: { data: 'custom data' } };
+        }
+        handleError(_error: Error) {
+          return { code: -32603, message: 'Error' };
+        }
+      }
+
+      const customHandler = new CustomResourceHandler();
+      const metadata = {
+        uriScheme: 'custom',
+        name: 'Custom Resource',
+        description: 'Custom resource handler',
+        mimeTypes: ['application/custom'],
+      };
+
+      registry.register(metadata.uriScheme, customHandler, metadata);
+      expect(registry.size()).toBe(1);
+      expect(registry.getForUri('custom://test')).toBe(customHandler);
     });
   });
 
