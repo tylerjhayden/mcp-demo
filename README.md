@@ -1,18 +1,17 @@
 # MCP Demo Server
 
-Enterprise-quality Model Context Protocol (MCP) server implementation demonstrating production-ready patterns in TypeScript.
+Model Context Protocol (MCP) server implementation demonstrating production-ready patterns in TypeScript. Built for developers who want to understand MCP internals.
 
 ## Overview
 
-This project showcases a professional MCP server implementation with:
+This project showcases an MCP server implementation with:
 
 - **Three core patterns**: Computation (calculate), API integration (weather), filesystem access (file resources)
-- **Enterprise features**: Security, observability, reliability, rate limiting, authentication
+- **Enterprise-readiness**: Security, observability, reliability, rate limiting, authentication
 - **Dual transports**: Stdio for desktop apps, HTTP/SSE for remote access
 - **DRY architecture**: Extensible design making new capabilities trivial to add
 - **Bare-metal approach**: Direct use of official MCP SDK with full control and transparency
 
-Built for developers who want to understand MCP internals and implement production-grade servers.
 
 ## Quick Start
 
@@ -97,7 +96,7 @@ TRANSPORT_MODE=http pnpm start
 └───────────────────────────┘
 ```
 
-### DRY Handler Pattern
+### Handler Pattern
 
 All capabilities implement a common interface:
 

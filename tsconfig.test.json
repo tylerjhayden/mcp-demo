@@ -1,0 +1,28 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // Inherit all strict settings from base config
+    // Additional test-specific overrides
+    "noEmit": true,
+    "types": ["jest", "node"],
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+
+    // Ensure strictest possible checking in tests
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noPropertyAccessFromIndexSignature": true
+  },
+  "include": [
+    "tests/**/*.ts",
+    "tests/**/*.test.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}
