@@ -12,6 +12,7 @@ import type {
 import { validateWithSchema } from '../../../shared/security/index.js';
 import { sanitizeExpression, validateExpression } from '../../../shared/security/index.js';
 import { MCPErrorCode } from '../../../shared/types/index.js';
+import { extractErrorMessage } from '../../../shared/utils/error-handling.js';
 
 /**
  * Schema for calculate tool parameters
@@ -82,7 +83,7 @@ export class CalculateTool implements CapabilityHandler<CalculateParams, Calcula
       });
 
       context.logger.error(
-        { expression: params.expression, error: error instanceof Error ? error.message : String(error) },
+        { expression: params.expression, error: extractErrorMessage(error) },
         'Expression evaluation failed'
       );
 

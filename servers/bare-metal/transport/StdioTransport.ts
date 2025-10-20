@@ -4,6 +4,7 @@ import type { MessageRouter, MCPRequest } from '../core/MessageRouter.js';
 import type { ExecutionContext } from '../../../shared/types/index.js';
 import { generateTraceId } from '../../../shared/observability/index.js';
 import { authenticateStdioRequest } from '../middleware/index.js';
+import { extractErrorMessage } from '../../../shared/utils/error-handling.js';
 
 /**
  * Stdio transport for MCP
@@ -112,7 +113,7 @@ export class StdioTransport {
       this.sendResponse(response);
     } catch (error) {
       context.logger.error(
-        { error: error instanceof Error ? error.message : String(error), traceId },
+        { error: extractErrorMessage(error), traceId },
         'Failed to process message'
       );
 
@@ -124,7 +125,7 @@ export class StdioTransport {
           code: -32700,
           message: 'Parse error',
           data: {
-            error: error instanceof Error ? error.message : String(error),
+            error: extractErrorMessage(error),
           },
         },
       };

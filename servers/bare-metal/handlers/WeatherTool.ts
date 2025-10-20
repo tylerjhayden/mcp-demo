@@ -10,6 +10,7 @@ import type {
 } from '../../../shared/types/index.js';
 import { validateWithSchema } from '../../../shared/security/index.js';
 import { MCPErrorCode } from '../../../shared/types/index.js';
+import { extractErrorMessage } from '../../../shared/utils/error-handling.js';
 
 /**
  * Schema for weather tool parameters
@@ -110,7 +111,7 @@ export class WeatherTool implements CapabilityHandler<WeatherParams, WeatherResu
       });
 
       context.logger.error(
-        { location: params.location, error: error instanceof Error ? error.message : String(error) },
+        { location: params.location, error: extractErrorMessage(error) },
         'Weather data fetch failed'
       );
 

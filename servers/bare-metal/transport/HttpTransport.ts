@@ -8,6 +8,7 @@ import type { Configuration, ExecutionContext, MetricsRecorder } from '../../../
 import { extractTraceId, createTraceHeaders } from '../../../shared/observability/index.js';
 import { authenticateHttpRequest, logAuthFailure, RateLimiter } from '../middleware/index.js';
 import { InMemoryMetricsRecorder } from '../../../shared/observability/index.js';
+import { extractErrorMessage } from '../../../shared/utils/error-handling.js';
 
 /**
  * HTTP transport for MCP
@@ -180,7 +181,7 @@ export class HttpTransport {
       res.json(response);
     } catch (error) {
       context.logger.error(
-        { error: error instanceof Error ? error.message : String(error) },
+        { error: extractErrorMessage(error) },
         'MCP request handling failed'
       );
 

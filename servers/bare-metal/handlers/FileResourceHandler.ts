@@ -20,6 +20,7 @@ import {
   createFileUri,
 } from '../../../shared/security/index.js';
 import { MCPErrorCode } from '../../../shared/types/index.js';
+import { extractErrorMessage } from '../../../shared/utils/error-handling.js';
 
 /**
  * Schema for file resource parameters
@@ -97,7 +98,7 @@ export class FileResourceHandler implements CapabilityHandler<FileResourceParams
       });
 
       context.logger.error(
-        { uri: params.uri, error: error instanceof Error ? error.message : String(error) },
+        { uri: params.uri, error: extractErrorMessage(error) },
         'File read failed'
       );
 
@@ -134,7 +135,7 @@ export class FileResourceHandler implements CapabilityHandler<FileResourceParams
         }
       } catch (error) {
         context.logger.warn(
-          { path: allowedPath, error: error instanceof Error ? error.message : String(error) },
+          { path: allowedPath, error: extractErrorMessage(error) },
           'Failed to list directory'
         );
         // Continue with other directories even if one fails

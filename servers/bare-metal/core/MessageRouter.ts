@@ -2,6 +2,7 @@ import type { ExecutionContext, MCPError } from '../../../shared/types/index.js'
 import { MCPErrorCode } from '../../../shared/types/index.js';
 import type { ToolRegistry } from '../registry/ToolRegistry.js';
 import type { ResourceRegistry } from '../registry/ResourceRegistry.js';
+import { extractErrorMessage } from '../../../shared/utils/error-handling.js';
 
 /**
  * MCP JSON-RPC request
@@ -142,7 +143,7 @@ export class MessageRouter {
         {
           method: request.method,
           id: request.id,
-          error: error instanceof Error ? error.message : String(error),
+          error: extractErrorMessage(error),
         },
         'MCP request failed'
       );
