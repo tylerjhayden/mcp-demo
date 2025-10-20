@@ -28,11 +28,12 @@ describe('MessageRouter', () => {
   describe('tools/list', () => {
     it('should return list of registered tools', async (): Promise<void> => {
       const tool = new CalculateTool();
-      toolRegistry.register({
+      const metadata = {
         name: 'calculate',
         description: 'Calculate expressions',
         inputSchema: { type: 'object', properties: {} },
-      }, tool);
+      };
+      toolRegistry.register(metadata.name, tool, metadata);
 
       const response = await router.route(MCP_REQUESTS.toolsList, context);
 
@@ -49,11 +50,12 @@ describe('MessageRouter', () => {
   describe('tools/call', () => {
     it('should execute tool and return result', async (): Promise<void> => {
       const tool = new CalculateTool();
-      toolRegistry.register({
+      const metadata = {
         name: 'calculate',
         description: 'Calculate',
         inputSchema: { type: 'object', properties: {} },
-      }, tool);
+      };
+      toolRegistry.register(metadata.name, tool, metadata);
 
       const response = await router.route(MCP_REQUESTS.toolsCall, context);
 
@@ -77,12 +79,13 @@ describe('MessageRouter', () => {
   describe('resources/list', () => {
     it('should return list of available resources', async (): Promise<void> => {
       const handler = new FileResourceHandler();
-      resourceRegistry.register({
+      const metadata = {
         uriScheme: 'file',
         name: 'File',
         description: 'Files',
         mimeTypes: ['text/plain'],
-      }, handler);
+      };
+      resourceRegistry.register(metadata.uriScheme, handler, metadata);
 
       const response = await router.route(MCP_REQUESTS.resourcesList, context);
 

@@ -44,11 +44,9 @@ describe('WeatherTool', () => {
   describe('execute', () => {
     it('should fetch weather data successfully', async (): Promise<void> => {
       const tool = new WeatherTool();
+      const url = 'https://api.openweathermap.org/data/2.5/weather?q=San%20Francisco&appid=test-key&units=metric';
       const httpClient = new MockHttpClientBuilder()
-        .addGetResponse(
-          expect.stringContaining('api.openweathermap.org'),
-          WEATHER_API_RESPONSES.sanFrancisco
-        )
+        .addGetResponse(url, WEATHER_API_RESPONSES.sanFrancisco)
         .build();
 
       const context = TestFactories.standardContext();
@@ -65,11 +63,9 @@ describe('WeatherTool', () => {
 
     it('should use cached data when available', async (): Promise<void> => {
       const tool = new WeatherTool();
+      const url = 'https://api.openweathermap.org/data/2.5/weather?q=San%20Francisco&appid=test-key&units=metric';
       const httpClient = new MockHttpClientBuilder()
-        .addGetResponse(
-          expect.stringContaining('api.openweathermap.org'),
-          WEATHER_API_RESPONSES.sanFrancisco
-        )
+        .addGetResponse(url, WEATHER_API_RESPONSES.sanFrancisco)
         .build();
 
       const context = TestFactories.standardContext();
@@ -89,11 +85,9 @@ describe('WeatherTool', () => {
 
     it('should handle API errors', async (): Promise<void> => {
       const tool = new WeatherTool();
+      const url = 'https://api.openweathermap.org/data/2.5/weather?q=InvalidCity&appid=test-key&units=metric';
       const httpClient = new MockHttpClientBuilder()
-        .addGetError(
-          expect.stringContaining('api.openweathermap.org'),
-          new Error('HTTP 404: Not Found')
-        )
+        .addGetError(url, new Error('HTTP 404: Not Found'))
         .build();
 
       const context = TestFactories.standardContext();

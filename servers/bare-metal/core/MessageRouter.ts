@@ -79,6 +79,19 @@ export class MessageRouter {
           break;
 
         case 'tools/call':
+          // Check if tool exists first to return proper error code
+          if (!request.params || typeof request.params.name !== 'string') {
+            return this.errorResponse(request.id, {
+              code: MCPErrorCode.InvalidRequest,
+              message: 'Missing or invalid tool name',
+            });
+          }
+          if (!this.toolRegistry.has(request.params.name)) {
+            return this.errorResponse(request.id, {
+              code: MCPErrorCode.MethodNotFound,
+              message: `Tool not found: ${request.params.name}`,
+            });
+          }
           result = await this.handleToolsCall(request.params, context);
           break;
 
@@ -156,16 +169,9 @@ export class MessageRouter {
     params: Record<string, unknown> | undefined,
     context: ExecutionContext
   ): Promise<unknown> {
-    if (!params || typeof params.name !== 'string') {
-      throw new Error('Missing or invalid tool name');
-    }
-
-    const toolName = params.name;
-    const handler = this.toolRegistry.get(toolName);
-
-    if (!handler) {
-      throw new Error(`Tool not found: ${toolName}`);
-    }
+    // Tool name validation and existence check now done in route() method
+    const toolName = params!.name as string;
+    const handler = this.toolRegistry.get(toolName)!;
 
     // Validate parameters
     const validationResult = handler.validate(params.arguments || {});

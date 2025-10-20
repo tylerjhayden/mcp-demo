@@ -23,7 +23,7 @@ describe('ResourceRegistry', () => {
         mimeTypes: ['text/plain', 'application/json'],
       };
 
-      registry.register(metadata, handler);
+      registry.register(metadata.uriScheme, handler, metadata);
       expect(registry.size()).toBe(1);
     });
   });
@@ -38,13 +38,13 @@ describe('ResourceRegistry', () => {
         mimeTypes: ['text/plain'],
       };
 
-      registry.register(metadata, handler);
-      const matched = registry.getHandlerForUri('file:///tmp/test.txt');
+      registry.register(metadata.uriScheme, handler, metadata);
+      const matched = registry.getForUri('file:///tmp/test.txt');
       expect(matched).toBe(handler);
     });
 
     it('should return undefined for unknown scheme', (): void => {
-      const matched = registry.getHandlerForUri('http://example.com');
+      const matched = registry.getForUri('http://example.com');
       expect(matched).toBeUndefined();
     });
 
@@ -57,8 +57,8 @@ describe('ResourceRegistry', () => {
         mimeTypes: ['text/plain'],
       };
 
-      registry.register(metadata, handler);
-      const matched = registry.getHandlerForUri('FILE:///test.txt');
+      registry.register(metadata.uriScheme, handler, metadata);
+      const matched = registry.getForUri('FILE:///test.txt');
       expect(matched).toBe(handler);
     });
   });
@@ -73,7 +73,7 @@ describe('ResourceRegistry', () => {
         mimeTypes: ['text/plain'],
       };
 
-      registry.register(metadata, handler);
+      registry.register(metadata.uriScheme, handler, metadata);
       const resources = registry.list();
 
       expect(resources).toHaveLength(1);
@@ -91,7 +91,7 @@ describe('ResourceRegistry', () => {
         mimeTypes: ['text/plain'],
       };
 
-      registry.register(metadata, handler);
+      registry.register(metadata.uriScheme, handler, metadata);
       registry.clear();
       expect(registry.size()).toBe(0);
     });

@@ -23,15 +23,12 @@ export class ToolRegistry {
 
   /**
    * Registers a tool handler with metadata
+   * Re-registration is allowed and will overwrite the existing tool
    * @param name - Tool name (used in MCP tool calls)
    * @param handler - Tool handler implementation
    * @param metadata - Tool metadata for discovery
    */
   register(name: string, handler: CapabilityHandler, metadata: ToolMetadata): void {
-    if (this.tools.has(name)) {
-      throw new Error(`Tool "${name}" is already registered`);
-    }
-
     this.tools.set(name, handler);
     this.metadata.set(name, metadata);
   }

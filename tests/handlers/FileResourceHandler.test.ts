@@ -104,13 +104,11 @@ describe('FileResourceHandler', () => {
       await fs.writeFile(path.join(testDir, 'file2.json'), 'content2');
 
       const context = TestFactories.fileContext([testDir]);
-      const result = await handler.list(context);
+      const resources = await handler.listResources(context);
 
-      if (result.success) {
-        expect(result.data.resources.length).toBeGreaterThanOrEqual(2);
-      } else {
-        throw new Error('Expected success');
-      }
+      expect(resources.length).toBeGreaterThanOrEqual(2);
+      expect(resources[0]).toHaveProperty('uri');
+      expect(resources[0]).toHaveProperty('name');
     });
   });
 });

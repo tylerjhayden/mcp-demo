@@ -28,7 +28,7 @@ describe('ToolRegistry', () => {
         },
       };
 
-      registry.register(metadata, tool);
+      registry.register(metadata.name, tool, metadata);
       expect(registry.size()).toBe(1);
     });
 
@@ -44,8 +44,8 @@ describe('ToolRegistry', () => {
         },
       };
 
-      registry.register(metadata, tool1);
-      registry.register(metadata, tool2);
+      registry.register(metadata.name, tool1, metadata);
+      registry.register(metadata.name, tool2, metadata);
       expect(registry.size()).toBe(1);
     });
   });
@@ -62,7 +62,7 @@ describe('ToolRegistry', () => {
         },
       };
 
-      registry.register(metadata, tool);
+      registry.register(metadata.name, tool, metadata);
       const retrieved = registry.get('calculate');
       expect(retrieved).toBe(tool);
     });
@@ -85,7 +85,7 @@ describe('ToolRegistry', () => {
         },
       };
 
-      registry.register(metadata, tool);
+      registry.register(metadata.name, tool, metadata);
       const tools = registry.list();
 
       expect(tools).toHaveLength(1);
@@ -110,7 +110,7 @@ describe('ToolRegistry', () => {
         },
       };
 
-      registry.register(metadata, tool);
+      registry.register(metadata.name, tool, metadata);
       registry.clear();
       expect(registry.size()).toBe(0);
     });

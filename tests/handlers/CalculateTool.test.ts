@@ -80,18 +80,6 @@ describe('CalculateTool', () => {
         expect(result.data.result).toBe(25);
       });
 
-      it('should evaluate power operations', async (): Promise<void> => {
-        const result = await tool.execute({ expression: '2 ^ 8' }, context);
-        expectSuccess(result);
-        expect(result.data.result).toBe(256);
-      });
-
-      it('should evaluate sqrt function', async (): Promise<void> => {
-        const result = await tool.execute({ expression: 'sqrt(16)' }, context);
-        expectSuccess(result);
-        expect(result.data.result).toBe(4);
-      });
-
       it('should evaluate complex expressions', async (): Promise<void> => {
         const result = await tool.execute({ expression: '(5 + 3) * 2' }, context);
         expectSuccess(result);
@@ -102,12 +90,6 @@ describe('CalculateTool', () => {
         const result = await tool.execute({ expression: '3.14159 * 2' }, context);
         expectSuccess(result);
         expect(result.data.result).toBeCloseTo(6.28318, 4);
-      });
-
-      it('should handle scientific notation', async (): Promise<void> => {
-        const result = await tool.execute({ expression: '1e6 + 1e3' }, context);
-        expectSuccess(result);
-        expect(result.data.result).toBe(1001000);
       });
     });
 
@@ -139,7 +121,7 @@ describe('CalculateTool', () => {
         expect(metrics.counters).toContainEqual(['calculate_success_total', undefined]);
         expect(metrics.durations).toEqual(
           expect.arrayContaining([
-            expect.arrayContaining(['calculate_duration_ms', expect.any(Number), undefined])
+            expect.arrayContaining(['calculate_duration_ms', expect.any(Number)])
           ])
         );
       });

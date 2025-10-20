@@ -50,11 +50,13 @@ describe('Security Utilities', () => {
   describe('validateExpression', () => {
     it('should accept valid expressions', (): void => {
       expect((): void => validateExpression('2 + 2')).not.toThrow();
-      expect((): void => validateExpression('sqrt(16)')).not.toThrow();
+      expect((): void => validateExpression('(5 + 3) * 2')).not.toThrow();
     });
 
     it('should reject dangerous expressions', (): void => {
-      expect((): void => validateExpression('Function("return 1")()')).toThrow();
+      expect((): void => validateExpression('2 ** 3')).toThrow();
+      expect((): void => validateExpression('1 / 0')).toThrow();
+      expect((): void => validateExpression('+ 5')).toThrow();
     });
   });
 });

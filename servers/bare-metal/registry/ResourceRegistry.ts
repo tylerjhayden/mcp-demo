@@ -52,7 +52,7 @@ export class ResourceRegistry {
       return undefined;
     }
 
-    const scheme = uri.substring(0, colonIndex);
+    const scheme = uri.substring(0, colonIndex).toLowerCase();
     return this.get(scheme);
   }
 
