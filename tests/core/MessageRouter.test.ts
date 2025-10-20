@@ -74,6 +74,60 @@ describe('MessageRouter', () => {
       expect(response.error).toBeDefined();
       expect(response.error?.code).toBe(MCPErrorCode.MethodNotFound);
     });
+
+    it('should use handler error classification for validation failures', async (): Promise<void> => {
+      const tool = new CalculateTool();
+      const metadata = {
+        name: 'calculate',
+        description: 'Calculate',
+        inputSchema: { type: 'object', properties: {} },
+      };
+      toolRegistry.register(metadata.name, tool, metadata);
+
+      // Send invalid arguments (empty expression)
+      const request = {
+        jsonrpc: '2.0' as const,
+        id: 1,
+        method: 'tools/call',
+        params: {
+          name: 'calculate',
+          arguments: { expression: '' },
+        },
+      };
+
+      const response = await router.route(request, context);
+
+      // Handler should classify this as InvalidParams, not InternalError
+      expect(response.error).toBeDefined();
+      expect(response.error?.code).toBe(MCPErrorCode.InvalidParams);
+    });
+
+    it('should use handler error classification for execution failures', async (): Promise<void> => {
+      const tool = new CalculateTool();
+      const metadata = {
+        name: 'calculate',
+        description: 'Calculate',
+        inputSchema: { type: 'object', properties: {} },
+      };
+      toolRegistry.register(metadata.name, tool, metadata);
+
+      // Send malformed expression
+      const request = {
+        jsonrpc: '2.0' as const,
+        id: 1,
+        method: 'tools/call',
+        params: {
+          name: 'calculate',
+          arguments: { expression: 'invalid expression {}' },
+        },
+      };
+
+      const response = await router.route(request, context);
+
+      // Handler should classify this as InvalidParams, not InternalError
+      expect(response.error).toBeDefined();
+      expect(response.error?.code).toBe(MCPErrorCode.InvalidParams);
+    });
   });
 
   describe('resources/list', () => {

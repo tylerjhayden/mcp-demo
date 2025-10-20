@@ -115,6 +115,20 @@ export class MessageRouter {
           });
       }
 
+      // Check if result is already an error response
+      if (this.isErrorResult(result)) {
+        const duration = Date.now() - startTime;
+        context.metrics.recordDuration('request_duration_ms', duration, {
+          method: request.method,
+        });
+        context.metrics.incrementCounter('request_error_total', {
+          method: request.method,
+          error_type: result.code.toString(),
+        });
+
+        return this.errorResponse(request.id, result);
+      }
+
       const duration = Date.now() - startTime;
       context.metrics.recordDuration('request_duration_ms', duration, {
         method: request.method,
@@ -164,6 +178,18 @@ export class MessageRouter {
   }
 
   /**
+   * Checks if a result is an MCP error
+   */
+  private isErrorResult(result: unknown): result is MCPError {
+    return (
+      typeof result === 'object' &&
+      result !== null &&
+      'code' in result &&
+      'message' in result
+    );
+  }
+
+  /**
    * Handles tools/call method
    */
   private async handleToolsCall(
@@ -177,16 +203,15 @@ export class MessageRouter {
     // Validate parameters
     const validationResult = handler.validate(params.arguments || {});
     if (!validationResult.success) {
-      throw new Error(
-        `Invalid parameters: ${validationResult.error?.message || 'Validation failed'}`
-      );
+      const error = new Error(validationResult.error?.message || 'Validation failed');
+      return handler.handleError(error);
     }
 
     // Execute handler
     const result = await handler.execute(validationResult.data!, context);
 
     if (!result.success) {
-      throw new Error(result.error.message);
+      return result.error;
     }
 
     return result.data;

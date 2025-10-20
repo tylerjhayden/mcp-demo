@@ -102,7 +102,10 @@ export class CalculateTool implements CapabilityHandler<CalculateParams, Calcula
     if (
       error.message.includes('invalid') ||
       error.message.includes('forbidden') ||
-      error.message.includes('unsafe')
+      error.message.includes('unsafe') ||
+      error.message.includes('cannot be empty') ||
+      error.message.includes('too long') ||
+      error.message.includes('Validation failed')
     ) {
       return {
         code: MCPErrorCode.InvalidParams,
