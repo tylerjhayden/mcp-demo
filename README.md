@@ -1,16 +1,17 @@
 # MCP Demo Server
 
-Model Context Protocol (MCP) server implementation demonstrating production-ready patterns in TypeScript. Built for developers who want to understand MCP internals.
+Model Context Protocol (MCP) server implementation demonstrating production-ready patterns in TypeScript.
+**Four parallel implementations** comparing bare-metal and framework approaches.
 
 ## Overview
 
-This project showcases an MCP server implementation with:
+This project showcases MCP server implementations with:
 
-- **Three core patterns**: Computation (calculate), API integration (weather), filesystem access (file resources)
-- **Enterprise-readiness**: Security, observability, reliability, rate limiting, authentication
+- **Three core patterns**: Computation (calculate), API integration (weather), filesystem access
+- **Four implementations**: Bare-metal, FastMCP, EasyMCP, mcp-framework
+- **Framework comparison**: Real-world evaluation of MCP development approaches
+- **Enterprise patterns**: Security, observability, reliability demonstrated across all implementations
 - **Dual transports**: Stdio for desktop apps, HTTP/SSE for remote access
-- **DRY architecture**: Extensible design making new capabilities trivial to add
-- **Bare-metal approach**: Direct use of official MCP SDK with full control and transparency
 
 
 ## Quick Start
@@ -122,6 +123,134 @@ This eliminates repetition and makes adding new capabilities simple:
 1. Implement the interface
 2. Register with appropriate registry
 3. Done - routing and transport work automatically
+
+## Framework Comparison
+
+This project includes **four parallel implementations** of the same MCP server capabilities, allowing you to compare approaches:
+
+| Implementation | Lines of Code | Pattern | Best For |
+|---------------|---------------|---------|----------|
+| **Bare-metal** (`/servers/bare-metal`) | ~2,000 | Direct MCP SDK | Learning MCP internals, full control, custom needs |
+| **FastMCP** (`/servers/fastmcp-impl`) | ~420 | Builder API | Production apps, Express-like familiarity |
+| **EasyMCP** (`/servers/easymcp-impl`) | ~400 | Decorators | Rapid prototyping, minimal boilerplate |
+| **mcp-framework** (`/servers/mcp-framework-impl`) | ~455 | Auto-discovery | Large projects with many capabilities |
+
+### Feature Matrix
+
+| Feature | Bare-metal | FastMCP | EasyMCP | mcp-framework |
+|---------|------------|---------|---------|---------------|
+| **Transport: stdio** | ✓ | ✓ | ✓ | ✓ |
+| **Transport: HTTP/SSE** | ✓ | ✓ | ✗ | ✓ |
+| **Input validation** | Manual Zod | Zod schemas | Type inference | Zod + helpers |
+| **Auto-discovery** | ✗ | ✗ | ✗ | ✓ (from `/tools`) |
+| **Type safety** | Manual | Schema-based | Decorator inference | `MCPInput<this>` |
+| **Setup complexity** | High | Medium | Low | Medium |
+| **Boilerplate** | High | Low | Minimal | Low-Medium |
+| **Framework dependency** | None | FastMCP | EasyMCP | mcp-framework |
+| **Learning curve** | Steep | Gentle | Gentle | Medium |
+
+### Code Comparison: Adding a Tool
+
+**Bare-metal** (must implement full interface):
+```typescript
+class MyTool implements CapabilityHandler {
+  validate(input: unknown): ValidationResult { /* ... */ }
+  execute(params: MyParams, ctx: ExecutionContext): Promise<Result> { /* ... */ }
+  handleError(error: Error): MCPError { /* ... */ }
+}
+// Register manually
+toolRegistry.register('my_tool', new MyTool());
+```
+
+**FastMCP** (builder pattern):
+```typescript
+server.addTool({
+  name: 'my_tool',
+  parameters: z.object({ input: z.string() }),
+  execute: async (args) => processInput(args.input),
+});
+```
+
+**EasyMCP** (decorators):
+```typescript
+class MyMCP extends EasyMCP {
+  @Tool({ description: 'Process input' })
+  async myTool(input: string) {
+    return processInput(input);
+  }
+}
+```
+
+**mcp-framework** (auto-discovery):
+```typescript
+// In /tools/my_tool.ts
+class MyTool extends MCPTool {
+  name = 'my_tool';
+  schema = defineSchema({ input: z.string().describe('Input') });
+  async execute(input: MCPInput<this>) {
+    return processInput(input.input);
+  }
+}
+export default MyTool;
+// Automatically discovered - no registration needed
+```
+
+### When to Choose Each Approach
+
+**Choose Bare-metal when:**
+- Learning MCP protocol internals
+- Need maximum control and customization
+- Building something unusual or experimental
+- Want minimal dependencies
+- Performance optimization is critical
+
+**Choose FastMCP when:**
+- Building production applications quickly
+- Team is familiar with Express.js patterns
+- Need session management and authentication
+- Want a proven, battle-tested framework
+
+**Choose EasyMCP when:**
+- Rapid prototyping or MVPs
+- Building simple, small servers
+- Team prefers TypeScript decorators
+- Want absolute minimum boilerplate
+- Developer experience is top priority
+
+**Choose mcp-framework when:**
+- Building large projects with many capabilities
+- Want CLI tooling (`mcp validate`, `mcp add`)
+- Team prefers convention over configuration
+- Scalability and organization are important
+- Need structured file organization
+
+### Running the Implementations
+
+Each implementation is in its own directory under `/servers`:
+
+```bash
+# Bare-metal
+cd servers/bare-metal
+pnpm build
+node dist/index.js
+
+# FastMCP
+cd servers/fastmcp-impl
+npm install
+npm run dev
+
+# EasyMCP
+cd servers/easymcp-impl
+npm install
+npm run dev
+
+# mcp-framework
+cd servers/mcp-framework-impl
+npm install
+npm run dev
+```
+
+All implementations support the same three capabilities (calculate, get_weather, file access) with identical APIs.
 
 ## Capabilities
 

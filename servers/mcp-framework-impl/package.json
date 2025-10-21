@@ -1,0 +1,25 @@
+{
+  "name": "@mcp-demo/mcp-framework-impl",
+  "version": "0.1.0",
+  "description": "MCP server implementation using mcp-framework with auto-discovery",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "validate": "mcp validate"
+  },
+  "dependencies": {
+    "mcp-framework": "^0.2.15",
+    "zod": "^3.23.8",
+    "mathjs": "^13.0.0",
+    "node-fetch": "^3.3.2",
+    "mime-types": "^2.1.35"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "tsx": "^4.15.0",
+    "typescript": "^5.5.0"
+  }
+}
