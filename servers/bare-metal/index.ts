@@ -28,7 +28,13 @@ async function main(): Promise<void> {
       transport: config.transport.mode,
     });
 
-    logger.info({ config }, 'Starting MCP Demo Server');
+    logger.info('='.repeat(60));
+    logger.info('MCP Demo Server');
+    logger.info('='.repeat(60));
+    logger.info(`Environment: ${config.nodeEnv}`);
+    logger.info(`Log Level: ${config.observability.logLevel}`);
+    logger.info(`Transport: ${config.transport.mode}${config.transport.mode === 'http' ? ` (port ${config.transport.httpPort})` : ''}`);
+    logger.info('');
 
     // Create shared metrics recorder
     const metrics = new InMemoryMetricsRecorder();
@@ -81,7 +87,13 @@ async function main(): Promise<void> {
       },
     });
 
-    logger.info({ toolCount: toolRegistry.size() }, 'Tools registered');
+    // Log registered tools
+    logger.info('Available Tools:');
+    const tools = toolRegistry.list();
+    tools.forEach(tool => {
+      logger.info(`  - ${tool.name}: ${tool.description}`);
+    });
+    logger.info('');
 
     // Initialize resource registry
     const resourceRegistry = new ResourceRegistry();
@@ -92,20 +104,42 @@ async function main(): Promise<void> {
       mimeTypes: ['text/plain', 'application/json', 'text/markdown'],
     });
 
-    logger.info({ resourceCount: resourceRegistry.size() }, 'Resources registered');
+    // Log registered resources
+    logger.info('Available Resources:');
+    const resources = resourceRegistry.list();
+    resources.forEach(resource => {
+      const mimeTypes = resource.mimeTypes ? ` (${resource.mimeTypes.join(', ')})` : '';
+      logger.info(`  - ${resource.uriScheme}://: ${resource.description}${mimeTypes}`);
+    });
+    logger.info('');
 
     // Create message router
     const router = new MessageRouter(toolRegistry, resourceRegistry);
 
     // Start appropriate transport
     if (config.transport.mode === 'stdio') {
+      logger.info('Security Configuration:');
+      logger.info(`  - Allowed file paths: ${config.security.allowedFilePaths.join(', ')}`);
+      logger.info('');
+      logger.info('Server ready in STDIO mode');
+      logger.info('Listening for MCP messages on stdin...');
+      logger.info('='.repeat(60));
+
       const transport = new StdioTransport(router, createContext, logger);
       transport.start();
-      logger.info('Running in stdio mode');
     } else {
+      logger.info('Security Configuration:');
+      logger.info(`  - API keys configured: ${config.security.apiKeys.length}`);
+      logger.info(`  - Rate limit: ${config.security.rateLimitRequestsPerMinute} requests/min`);
+      logger.info(`  - Allowed file paths: ${config.security.allowedFilePaths.join(', ')}`);
+      logger.info('');
+      logger.info(`Server ready in HTTP mode on port ${config.transport.httpPort}`);
+      logger.info(`Health check: http://localhost:${config.transport.httpPort}/health`);
+      logger.info(`MCP endpoint: http://localhost:${config.transport.httpPort}/mcp`);
+      logger.info('='.repeat(60));
+
       const transport = new HttpTransport(router, createContext, config, logger, metrics);
       await transport.start();
-      logger.info({ port: config.transport.httpPort }, 'Running in HTTP mode');
 
       // Graceful shutdown for HTTP
       const shutdown = async (): Promise<void> => {

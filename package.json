@@ -5,7 +5,7 @@
   "type": "module",
   "main": "dist/servers/bare-metal/index.js",
   "scripts": {
-    "build": "tsc --build",
+    "build": "tsc --build tsconfig.build.json",
     "dev": "tsx watch servers/bare-metal/index.ts",
     "start": "node dist/servers/bare-metal/index.js",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest",

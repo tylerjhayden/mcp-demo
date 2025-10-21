@@ -1,8 +1,9 @@
-import type { ExecutionContext, MCPError } from '../../../shared/types/index.js';
+import type { ExecutionContext, MCPError, FileResourceListItem, FileResourceResult } from '../../../shared/types/index.js';
 import { MCPErrorCode } from '../../../shared/types/index.js';
 import type { ToolRegistry } from '../registry/ToolRegistry.js';
 import type { ResourceRegistry } from '../registry/ResourceRegistry.js';
 import { extractErrorMessage } from '../../../shared/utils/error-handling.js';
+import type { FileResourceHandler } from '../handlers/FileResourceHandler.js';
 
 /**
  * MCP JSON-RPC request
@@ -75,6 +76,15 @@ export class MessageRouter {
       let result: unknown;
 
       switch (request.method) {
+        case 'initialize':
+          result = this.handleInitialize(request.params);
+          break;
+
+        case 'initialized':
+          // Notification - no response needed, but we acknowledge it
+          result = {};
+          break;
+
         case 'tools/list':
           result = this.handleToolsList();
           break;
@@ -170,6 +180,24 @@ export class MessageRouter {
   }
 
   /**
+   * Handles initialize method
+   * Returns server capabilities and version info
+   */
+  private handleInitialize(_params: Record<string, unknown> | undefined): unknown {
+    return {
+      protocolVersion: '2024-11-05',
+      capabilities: {
+        tools: {},
+        resources: {},
+      },
+      serverInfo: {
+        name: 'mcp-demo-server',
+        version: '1.0.0',
+      },
+    };
+  }
+
+  /**
    * Handles tools/list method
    */
   private handleToolsList(): unknown {
@@ -201,7 +229,7 @@ export class MessageRouter {
     const handler = this.toolRegistry.get(toolName)!;
 
     // Validate parameters
-    const validationResult = handler.validate(params.arguments || {});
+    const validationResult = handler.validate(params!.arguments || {});
     if (!validationResult.success) {
       const error = new Error(validationResult.error?.message || 'Validation failed');
       return handler.handleError(error);
@@ -214,14 +242,22 @@ export class MessageRouter {
       return result.error;
     }
 
-    return result.data;
+    // Convert result data to MCP content format
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(result.data, null, 2),
+        },
+      ],
+    };
   }
 
   /**
    * Handles resources/list method
    */
   private async handleResourcesList(context: ExecutionContext): Promise<unknown> {
-    const fileHandler = this.resourceRegistry.get('file');
+    const fileHandler = this.resourceRegistry.get('file') as FileResourceHandler | undefined;
 
     if (!fileHandler) {
       return { resources: [] };
@@ -230,7 +266,7 @@ export class MessageRouter {
     const files = await fileHandler.listResources(context);
 
     return {
-      resources: files.map((file) => ({
+      resources: files.map((file: FileResourceListItem) => ({
         uri: file.uri,
         name: file.name,
         mimeType: file.mimeType,
@@ -271,12 +307,14 @@ export class MessageRouter {
       throw new Error(result.error.message);
     }
 
+    const resourceData = result.data as FileResourceResult;
+
     return {
       contents: [
         {
-          uri: result.data.uri,
-          mimeType: result.data.mimeType,
-          text: result.data.content,
+          uri: resourceData.uri,
+          mimeType: resourceData.mimeType,
+          text: resourceData.content,
         },
       ],
     };

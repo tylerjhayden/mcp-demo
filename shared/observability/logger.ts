@@ -21,28 +21,25 @@ export function createLogger(config: {
     },
   };
 
-  // For stdio transport, use stderr to avoid mixing with protocol messages
-  // For HTTP transport or pretty format, use stdout
-  const destination = config.transport === 'stdio' ? 2 : 1; // 2 = stderr, 1 = stdout
-
   // Use pretty printing in development, JSON in production
   if (config.format === 'pretty') {
-    return pino(baseConfig, pino.destination({
-      sync: true,
-      dest: destination,
-    })).child({
+    return pino({
+      ...baseConfig,
       transport: {
         target: 'pino-pretty',
         options: {
           colorize: true,
           translateTime: 'HH:MM:ss',
           ignore: 'pid,hostname',
+          destination: config.transport === 'stdio' ? 2 : 1, // 2 = stderr, 1 = stdout
         },
       },
     });
   }
 
   // JSON logging for production
+  // For stdio transport, use stderr to avoid mixing with protocol messages
+  const destination = config.transport === 'stdio' ? 2 : 1;
   return pino(baseConfig, pino.destination({
     sync: false,
     dest: destination,

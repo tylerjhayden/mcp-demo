@@ -34,13 +34,20 @@ cp .env.example .env
 # Edit .env and add your WEATHER_API_KEY
 ```
 
-### Run in stdio mode
+### Use with Claude Code
 
 ```bash
-pnpm dev
+# Build the server
+pnpm build
+
+# Add to Claude Code
+claude mcp add demo-server node -- $(pwd)/dist/servers/bare-metal/index.js
+
+# Verify connection
+claude mcp list
 ```
 
-### Run in HTTP mode
+### Manual Testing (HTTP mode)
 
 ```bash
 # Development
@@ -50,6 +57,8 @@ TRANSPORT_MODE=http pnpm dev
 pnpm build
 TRANSPORT_MODE=http pnpm start
 ```
+
+**Note**: For Claude Code (stdio mode), you don't need to manually run the server - it auto-starts!
 
 ## Architecture
 
@@ -245,6 +254,21 @@ docker run -p 3000:3000 \
 
 ### MCP Client Integration
 
+**Claude Code CLI** (recommended):
+```bash
+# Build the server first
+pnpm build
+
+# Add to Claude Code (stdio mode)
+claude mcp add demo-server node -- /path/to/mcp-demo/dist/servers/bare-metal/index.js
+
+# Verify it's connected
+claude mcp list
+
+# The server will auto-start when Claude Code needs it
+# No need to manually run pnpm start!
+```
+
 **Claude Desktop** (stdio):
 ```json
 {
@@ -271,6 +295,58 @@ curl -X POST http://localhost:3000/mcp \
       "arguments": {"expression": "2 + 2"}
     }
   }'
+```
+
+## Sharing Your Server
+
+### Stdio vs HTTP: When to Use Each
+
+**Stdio Mode** (Local, Single User):
+- ✅ Personal use with Claude Code/Desktop
+- ✅ Secure (OS-level permissions only)
+- ✅ No network exposure
+- ✅ Auto-starts/stops with client
+
+**HTTP Mode** (Shared, Multi-User):
+- ✅ Share with other Claude Code users
+- ✅ Remote access (deploy to cloud)
+- ✅ Multiple simultaneous clients
+- ✅ Testing with curl/Postman
+- ✅ Browser-based integrations
+
+### Deployment for Sharing
+
+**Quick Test (ngrok)**:
+```bash
+# Terminal 1: Start server
+TRANSPORT_MODE=http pnpm start
+
+# Terminal 2: Create tunnel
+ngrok http 3000
+
+# Share URL: Others add with
+# claude mcp add --transport http your-server https://abc123.ngrok.io/mcp
+```
+
+**Production (Cloud)**:
+```bash
+# Deploy to Railway, Render, Fly.io, AWS, etc.
+# Set environment:
+#   TRANSPORT_MODE=http
+#   API_KEYS=key1,key2,key3
+
+# Users connect:
+claude mcp add --transport http your-server \
+  https://your-domain.com/mcp \
+  --header "Authorization: Bearer user_api_key"
+```
+
+**Self-Host (GitHub)**:
+```bash
+# Share repo - users run their own instance
+git clone your-repo
+pnpm install && pnpm build
+claude mcp add demo-server node -- $(pwd)/dist/servers/bare-metal/index.js
 ```
 
 ## Implementation Details
