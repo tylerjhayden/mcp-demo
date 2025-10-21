@@ -8,8 +8,10 @@ Model Context Protocol (MCP) server implementation demonstrating production-read
 This project showcases MCP server implementations with:
 
 - **Three core patterns**: Computation (calculate), API integration (weather), filesystem access
-- **Four implementations**: Bare-metal, FastMCP, EasyMCP, mcp-framework
+- **Four implementations**: Bare-metal, FastMCP, EasyMCP*, mcp-framework
 - **Framework comparison**: Real-world evaluation of MCP development approaches
+
+*Note: The EasyMCP implementation may not run due to unstable npm package (v0.0.0-development).
 - **Enterprise patterns**: Security, observability, reliability demonstrated across all implementations
 - **Dual transports**: Stdio for desktop apps, HTTP/SSE for remote access
 
@@ -132,8 +134,10 @@ This project includes **four parallel implementations** of the same MCP server c
 |---------------|---------------|---------|----------|
 | **Bare-metal** (`/servers/bare-metal`) | ~2,000 | Direct MCP SDK | Learning MCP internals, full control, custom needs |
 | **FastMCP** (`/servers/fastmcp-impl`) | ~420 | Builder API | Production apps, Express-like familiarity |
-| **EasyMCP** (`/servers/easymcp-impl`) | ~400 | Decorators | Rapid prototyping, minimal boilerplate |
+| **EasyMCP** (`/servers/easymcp-impl`) ⚠️ | ~400 | Decorators | Rapid prototyping, minimal boilerplate (package unstable) |
 | **mcp-framework** (`/servers/mcp-framework-impl`) | ~455 | Auto-discovery | Large projects with many capabilities |
+
+⚠️ *EasyMCP implementation may not run - the `easy-mcp` npm package has broken exports in v0.0.0-development*
 
 ### Feature Matrix
 
@@ -211,6 +215,7 @@ export default MyTool;
 - Want a proven, battle-tested framework
 
 **Choose EasyMCP when:**
+- ⚠️ **Note:** Currently not recommended - package has stability issues
 - Rapid prototyping or MVPs
 - Building simple, small servers
 - Team prefers TypeScript decorators
@@ -239,7 +244,7 @@ cd servers/fastmcp-impl
 npm install
 npm run dev
 
-# EasyMCP
+# EasyMCP (⚠️ may not work - package unstable)
 cd servers/easymcp-impl
 npm install
 npm run dev

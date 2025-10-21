@@ -1,6 +1,10 @@
 // ABOUTME: EasyMCP server implementation
 // ABOUTME: Demonstrates decorator-based pattern for MCP server creation
 
+// WARNING: The easy-mcp package (v0.0.0-development) has broken module exports.
+// These import paths reference internal dist files that don't exist as separate modules.
+// This code may not run until a stable version of easy-mcp is released.
+
 import EasyMCP from 'easy-mcp/dist/lib/EasyMCP.js';
 import { Tool } from 'easy-mcp/dist/lib/experimental/decorators/Tool.js';
 import { Resource } from 'easy-mcp/dist/lib/experimental/decorators/Resource.js';

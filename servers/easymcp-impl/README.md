@@ -1,5 +1,11 @@
 # EasyMCP Implementation
 
+> **⚠️ WARNING: This implementation may not run due to package stability issues.**
+>
+> The `easy-mcp` npm package (v0.0.0-development) has broken module exports. The published version bundles all code but doesn't properly export the `EasyMCP` class or decorator functions, causing import failures.
+>
+> **Alternatives:** The other three implementations (bare-metal, FastMCP, mcp-framework) are fully functional. Use those for working examples.
+
 MCP server built using the [EasyMCP](https://github.com/zcaceres/easy-mcp) framework, demonstrating the decorator-based pattern.
 
 ## Features
