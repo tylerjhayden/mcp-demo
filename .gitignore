@@ -43,3 +43,7 @@ Thumbs.db
 tmp/
 temp/
 *.tmp
+
+# AI config (personal instructions and automation infrastructure)
+.claude/
+CLAUDE.md
