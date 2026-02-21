@@ -89,13 +89,13 @@ export const CALCULATE_EXPRESSIONS = {
     '2 + 2',
     '10 * 5',
     '100 / 4',
-    '2 * 8',          // was '2 ^ 8' — ^ not in allowlist
-    '4 * 4',          // was 'sqrt(16)' — letters not allowed
-    '1 / 2',          // was 'sin(pi / 2)' — letters not allowed
-    '100 + 0',        // was 'log(100)' — letters not allowed
+    '2 ^ 8',
+    'sqrt(16)',
+    'sin(pi / 2)',
+    'log(100)',
     '(5 + 3) * 2',
     '3.14159 * 2',
-    '1000000 + 1000', // was '1e6 + 1e3' — 'e' not in allowlist
+    '1e6 + 1e3',
   ],
   invalid: [
     'console.log("xss")',
