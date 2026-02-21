@@ -39,7 +39,8 @@ export class HttpTransport {
   private setupMiddleware(): void {
     // CORS for browser clients
     this.app.use(cors({
-      origin: '*', // In production, configure specific origins
+      // Restrict in production via CORS_ORIGIN env var (e.g., 'https://yourapp.com')
+      origin: process.env.CORS_ORIGIN ?? '*',
       methods: ['GET', 'POST', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Trace-Id'],
       exposedHeaders: ['X-Trace-Id'],
@@ -49,7 +50,7 @@ export class HttpTransport {
     this.app.use(compression());
 
     // JSON body parsing
-    this.app.use(express.json({ limit: '10mb' }));
+    this.app.use(express.json({ limit: '1mb' }));
 
     // Request logging
     this.app.use((req, _res, next) => {
