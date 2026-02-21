@@ -154,10 +154,7 @@ export class FileResourceHandler implements CapabilityHandler<FileResourceParams
     if (error.message.includes('Access denied') || error.message.includes('outside allowed')) {
       return {
         code: MCPErrorCode.InvalidParams,
-        message: error.message,
-        data: {
-          originalError: error.message,
-        },
+        message: 'Access denied: path is outside allowed directories',
       };
     }
 
@@ -165,10 +162,7 @@ export class FileResourceHandler implements CapabilityHandler<FileResourceParams
     if (error.message.includes('not found') || error.message.includes('ENOENT')) {
       return {
         code: MCPErrorCode.ResourceNotFound,
-        message: 'File not found',
-        data: {
-          originalError: error.message,
-        },
+        message: 'Resource not found',
       };
     }
 
@@ -176,10 +170,7 @@ export class FileResourceHandler implements CapabilityHandler<FileResourceParams
     if (error.message.includes('EACCES') || error.message.includes('permission')) {
       return {
         code: MCPErrorCode.InternalError,
-        message: 'Permission denied',
-        data: {
-          error: 'Insufficient permissions to read file',
-        },
+        message: 'Access denied: insufficient permissions',
       };
     }
 
@@ -187,20 +178,14 @@ export class FileResourceHandler implements CapabilityHandler<FileResourceParams
     if (error.message.includes('Invalid file URI')) {
       return {
         code: MCPErrorCode.InvalidParams,
-        message: error.message,
-        data: {
-          originalError: error.message,
-        },
+        message: 'Invalid file URI',
       };
     }
 
     // Generic file system error
     return {
       code: MCPErrorCode.InternalError,
-      message: 'Failed to read file',
-      data: {
-        error: error.message,
-      },
+      message: 'Request failed',
     };
   }
 }

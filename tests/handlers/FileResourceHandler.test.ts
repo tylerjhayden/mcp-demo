@@ -98,6 +98,37 @@ describe('FileResourceHandler', () => {
     });
   });
 
+  describe('error response sanitization', () => {
+    it('does not include internal path in access-denied error', async (): Promise<void> => {
+      const context = TestFactories.fileContext([testDir]);
+      const result = await handler.execute(
+        { uri: 'file:///etc/passwd' },
+        context
+      );
+
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.data).toBeUndefined();
+        expect(result.error.message).not.toContain('/etc/passwd');
+        expect(result.error.message).not.toContain(testDir);
+      }
+    });
+
+    it('does not include originalError in file-not-found response', async (): Promise<void> => {
+      const context = TestFactories.fileContext([testDir]);
+      const result = await handler.execute(
+        { uri: `file://${testDir}/nonexistent-file.txt` },
+        context
+      );
+
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.data).toBeUndefined();
+        expect(result.error.message).toBe('Resource not found');
+      }
+    });
+  });
+
   describe('list', () => {
     it('should list files in allowed directory', async (): Promise<void> => {
       await fs.writeFile(path.join(testDir, 'file1.txt'), 'content1');
