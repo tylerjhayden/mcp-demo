@@ -86,11 +86,21 @@ export class HttpTransport {
 
     // Health check endpoint
     this.app.get('/health', (req: Request, res: Response) => {
+      const authResult = authenticateHttpRequest(req.headers.authorization, this.config);
+      if (!authResult.authenticated) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
       this.handleHealthCheck(req, res);
     });
 
     // Metrics endpoint
     this.app.get('/metrics', (req: Request, res: Response) => {
+      const authResult = authenticateHttpRequest(req.headers.authorization, this.config);
+      if (!authResult.authenticated) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
       this.handleMetrics(req, res);
     });
 
@@ -280,6 +290,13 @@ export class HttpTransport {
       return authHeader.substring(7); // Return API key
     }
     return req.ip || 'unknown';
+  }
+
+  /**
+   * Returns the underlying Express app (for testing)
+   */
+  getApp(): Express {
+    return this.app;
   }
 
   /**
