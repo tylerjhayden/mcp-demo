@@ -52,6 +52,32 @@ describe('Authentication', () => {
     });
   });
 
+  describe('timingSafeEqual key comparison', () => {
+    it('should accept a valid key', (): void => {
+      const config = createMockConfiguration({
+        security: { apiKeys: ['test-key-1'], allowedFilePaths: [], rateLimitRequestsPerMinute: 60 },
+      });
+      const result = authenticateHttpRequest('Bearer test-key-1', config);
+      expect(result.authenticated).toBe(true);
+    });
+
+    it('should reject a prefix of a valid key', (): void => {
+      const config = createMockConfiguration({
+        security: { apiKeys: ['test-key-1'], allowedFilePaths: [], rateLimitRequestsPerMinute: 60 },
+      });
+      const result = authenticateHttpRequest('Bearer test-key', config);
+      expect(result.authenticated).toBe(false);
+    });
+
+    it('should reject a key with same length but different content', (): void => {
+      const config = createMockConfiguration({
+        security: { apiKeys: ['test-key-1'], allowedFilePaths: [], rateLimitRequestsPerMinute: 60 },
+      });
+      const result = authenticateHttpRequest('Bearer test-key-X', config);
+      expect(result.authenticated).toBe(false);
+    });
+  });
+
   describe('authenticateStdioRequest', () => {
     it('should always return authenticated', (): void => {
       const result = authenticateStdioRequest();

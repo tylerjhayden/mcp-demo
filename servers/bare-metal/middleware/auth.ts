@@ -1,5 +1,14 @@
+import { timingSafeEqual } from 'crypto';
 import type { Configuration } from '../../../shared/types/index.js';
 import { Logger } from 'pino';
+
+function isValidApiKey(token: string, validKeys: string[]): boolean {
+  const tokenBuf = Buffer.from(token);
+  return validKeys.some((key) => {
+    const keyBuf = Buffer.from(key);
+    return tokenBuf.length === keyBuf.length && timingSafeEqual(tokenBuf, keyBuf);
+  });
+}
 
 /**
  * Authentication result
@@ -43,8 +52,8 @@ export function authenticateHttpRequest(
     };
   }
 
-  // Check if token is in allowed API keys
-  if (!config.security.apiKeys.includes(token)) {
+  // Check if token is in allowed API keys (constant-time comparison)
+  if (!isValidApiKey(token, config.security.apiKeys)) {
     return {
       authenticated: false,
       reason: 'Invalid API key',
