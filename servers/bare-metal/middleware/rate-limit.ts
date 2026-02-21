@@ -4,6 +4,7 @@
 interface TokenBucket {
   tokens: number;
   lastRefill: number;
+  lastUsed: number;
 }
 
 /**
@@ -14,6 +15,9 @@ export class RateLimiter {
   private buckets: Map<string, TokenBucket> = new Map();
   private readonly maxTokens: number;
   private readonly refillRate: number; // tokens per second
+  private cleanupCounter = 0;
+  private readonly CLEANUP_INTERVAL = 100;
+  private readonly IDLE_TTL_MS = 2 * 60 * 1000; // 2 minutes
 
   /**
    * Creates a rate limiter
@@ -38,8 +42,10 @@ export class RateLimiter {
       bucket = {
         tokens: this.maxTokens - 1, // Consume one token for this request
         lastRefill: now,
+        lastUsed: now,
       };
       this.buckets.set(clientId, bucket);
+      this.maybeCleanup(now);
       return true;
     }
 
@@ -48,15 +54,38 @@ export class RateLimiter {
     const tokensToAdd = secondsElapsed * this.refillRate;
     bucket.tokens = Math.min(this.maxTokens, bucket.tokens + tokensToAdd);
     bucket.lastRefill = now;
+    bucket.lastUsed = now;
 
     // Check if we have tokens available
     if (bucket.tokens < 1) {
+      this.maybeCleanup(now);
       return false; // Rate limited
     }
 
     // Consume a token
     bucket.tokens -= 1;
+    this.maybeCleanup(now);
     return true;
+  }
+
+  private maybeCleanup(now: number): void {
+    this.cleanupCounter++;
+    if (this.cleanupCounter < this.CLEANUP_INTERVAL) return;
+    this.cleanupCounter = 0;
+    for (const [clientId, bucket] of this.buckets) {
+      // Evict buckets that haven't been touched recently.
+      // Tokens would have fully refilled by this point anyway (IDLE_TTL >> refill period).
+      if (now - bucket.lastUsed > this.IDLE_TTL_MS) {
+        this.buckets.delete(clientId);
+      }
+    }
+  }
+
+  /**
+   * Returns number of active client buckets (for testing/observability)
+   */
+  getBucketCount(): number {
+    return this.buckets.size;
   }
 
   /**
