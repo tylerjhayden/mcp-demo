@@ -58,11 +58,22 @@ export function parseFileUri(uri: string): string {
     throw new Error(`Invalid file URI: must start with file:// (got: ${uri})`);
   }
 
-  // Remove file:// prefix and decode URI components
-  let filePath = uri.slice(7);
+  const afterScheme = uri.slice(7); // strip 'file://'
 
-  // Decode URI-encoded characters
-  filePath = decodeURIComponent(filePath);
+  // Reject authority-form URIs like file://hostname/path — after stripping
+  // 'file://' we must have an absolute path starting with '/'
+  if (!afterScheme.startsWith('/')) {
+    throw new Error(
+      `Invalid file URI: must use absolute path form file:///path (got: ${uri})`
+    );
+  }
+
+  const filePath = decodeURIComponent(afterScheme);
+
+  // Reject null bytes — fs truncates at \x00, silently accessing a different file
+  if (filePath.includes('\x00')) {
+    throw new Error('Invalid file URI: null byte in path');
+  }
 
   return filePath;
 }

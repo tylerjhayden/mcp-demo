@@ -62,7 +62,7 @@ export class FileResourceHandler implements CapabilityHandler<FileResourceParams
       // Verify file exists and is readable
       const isAccessible = await validateFileAccess(sanitizedPath);
       if (!isAccessible) {
-        throw new Error(`File not found or not readable: ${filePath}`);
+        throw new Error('File not found or not readable');
       }
 
       // Read file content

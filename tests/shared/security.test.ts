@@ -8,6 +8,7 @@ import {
   sanitizeFilePath,
   sanitizeExpression,
   validateExpression,
+  parseFileUri,
 } from '../../shared/security/index.js';
 import { PATH_TRAVERSAL_ATTEMPTS } from '../helpers/fixtures.js';
 
@@ -31,6 +32,24 @@ describe('Security Utilities', () => {
     it('should allow paths within allowed directories', (): void => {
       const result = sanitizeFilePath('/tmp/subdir/file.txt', ['/tmp']);
       expect(result).toContain('/tmp');
+    });
+  });
+
+  describe('parseFileUri', () => {
+    it('accepts a well-formed absolute file URI', (): void => {
+      expect(parseFileUri('file:///tmp/test.txt')).toBe('/tmp/test.txt');
+    });
+
+    it('rejects authority-form URIs (file://hostname/path)', (): void => {
+      expect(() => parseFileUri('file://localhost/tmp/test.txt')).toThrow('Invalid file URI');
+    });
+
+    it('rejects authority-form URIs without path slash', (): void => {
+      expect(() => parseFileUri('file://somehost')).toThrow('Invalid file URI');
+    });
+
+    it('rejects URIs containing null bytes', (): void => {
+      expect(() => parseFileUri('file:///tmp/file%00.txt')).toThrow('Invalid file URI');
     });
   });
 
