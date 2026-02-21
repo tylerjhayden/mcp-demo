@@ -122,10 +122,7 @@ function validateConfiguration(config: Configuration): void {
     }
   }
 
-  // Validate weather API configuration
-  if (!config.weather.apiKey && config.nodeEnv !== 'test') {
-    console.warn('Warning: WEATHER_API_KEY not set. Weather tool will not function properly.');
-  }
+  // Weather API key absence is logged at server startup with the Pino logger
 
   if (config.weather.timeout < 100 || config.weather.timeout > 30000) {
     throw new Error(`Invalid weather API timeout: ${config.weather.timeout}ms (must be 100-30000)`);

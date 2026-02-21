@@ -36,6 +36,10 @@ async function main(): Promise<void> {
     logger.info(`Transport: ${config.transport.mode}${config.transport.mode === 'http' ? ` (port ${config.transport.httpPort})` : ''}`);
     logger.info('');
 
+    if (!config.weather.apiKey) {
+      logger.warn('WEATHER_API_KEY not set — weather tool will not function');
+    }
+
     // Create shared metrics recorder
     const metrics = new InMemoryMetricsRecorder();
 
