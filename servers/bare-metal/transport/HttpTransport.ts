@@ -226,6 +226,20 @@ export class HttpTransport {
       return;
     }
 
+    // Rate limit SSE connections
+    const clientId = this.getClientId(req);
+    if (!this.rateLimiter.checkLimit(clientId)) {
+      const retryAfter = this.rateLimiter.getRetryAfter(clientId);
+      res.status(429)
+        .header('Retry-After', retryAfter.toString())
+        .json({
+          error: 'Too Many Requests',
+          message: 'Rate limit exceeded',
+          retryAfter,
+        });
+      return;
+    }
+
     // Set SSE headers
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');

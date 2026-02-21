@@ -74,3 +74,23 @@ describe('HttpTransport — observability endpoint protection', () => {
   });
 });
 
+describe('HttpTransport — SSE rate limiting', () => {
+  it('returns 429 on SSE when rate limit is exceeded', async () => {
+    const transport = buildTransport(1); // 1 req/min — exhausted after first request
+    const app = transport.getApp();
+
+    // Exhaust the token bucket via /mcp POST (returns immediately, no hanging stream).
+    // getClientId() uses the API key as client ID so both endpoints share the same bucket.
+    await request(app)
+      .post('/mcp')
+      .set('Authorization', 'Bearer test-key-1')
+      .send({ jsonrpc: '2.0', id: 1, method: 'ping', params: {} });
+
+    // Now /sse should be rate-limited for the same client
+    const res = await request(app)
+      .get('/sse')
+      .set('Authorization', 'Bearer test-key-1');
+    expect(res.status).toBe(429);
+  });
+});
+
