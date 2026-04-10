@@ -36,7 +36,7 @@
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "express-rate-limit": "^7.4.1",
-    "mathjs": "^14.0.1",
+    "mathjs": "^15.2.0",
     "mime-types": "^2.1.35",
     "pino": "^9.5.0",
     "pino-pretty": "^13.0.0",
